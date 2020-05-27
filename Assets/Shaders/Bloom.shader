@@ -16,6 +16,7 @@ Shader "Wind/Bloom"
     float _Intensity;
     float _Threshold;
     fixed4 _ColorFilter;
+    float2 _offsets;
 
 
     struct separation_v2f{
@@ -31,6 +32,14 @@ Shader "Wind/Bloom"
 		float2 uv3 : TEXCOORD3;  
 		float2 uv4 : TEXCOORD4;
     
+    };
+
+    struct gaussianblur_v2f{
+        float4 pos : SV_POSITION;
+		float2 uv : TEXCOORD0;
+        float4 uv01:TEXCOORD1;
+        float4 uv23:TEXCOORD2;
+        float4 uv45:TEXCOORD3;
     };
 
     struct bloom_v2f{
@@ -80,6 +89,8 @@ Shader "Wind/Bloom"
     
     }
 
+
+
     //Pass 2 VF 用于将原缓冲和模糊高亮后的缓冲混合输出
     bloom_v2f bloom_vert(appdata_img v){
         
@@ -101,10 +112,41 @@ Shader "Wind/Bloom"
 
         fixed4 color = original_color+_Intensity*blur_color;
 
+        color = clamp(color,0,_ColorFilter);
+
         return color;
     
     }
 
+
+    //Pass 3 VF 用于对 Pass0 得到的颜色缓冲进行模糊---------------高斯模糊
+    gaussianblur_v2f gaussianblur_vert(appdata_img v){
+        gaussianblur_v2f o;
+        o.pos = UnityObjectToClipPos(v.vertex);
+        o.uv = v.texcoord.xy;
+
+        _offsets *= _MainTex_TexelSize.xy;
+
+        o.uv01 = v.texcoord.xyxy + _offsets.xyxy * float4(1, 1, -1, -1);
+		o.uv23 = v.texcoord.xyxy + _offsets.xyxy * float4(1, 1, -1, -1) * 2.0;
+		o.uv45 = v.texcoord.xyxy + _offsets.xyxy * float4(1, 1, -1, -1) * 3.0;
+
+        return o;
+    }
+
+    fixed4 gaussianblur_frag(gaussianblur_v2f i):SV_Target{
+        fixed4 color = fixed4(0,0,0,0);
+		color += 0.4 * tex2D(_MainTex, i.uv);
+		color += 0.15 * tex2D(_MainTex, i.uv01.xy);
+		color += 0.15 * tex2D(_MainTex, i.uv01.zw);
+		color += 0.10 * tex2D(_MainTex, i.uv23.xy);
+		color += 0.10 * tex2D(_MainTex, i.uv23.zw);
+		color += 0.05 * tex2D(_MainTex, i.uv45.xy);
+		color += 0.05 * tex2D(_MainTex, i.uv45.zw);
+		return color;
+
+    
+    }
 
 
     ENDCG
@@ -128,14 +170,12 @@ Shader "Wind/Bloom"
         }
 
         Pass{
-            Name "Blur"
+            Name "SimpleBlur"
                         
             CGPROGRAM
-
             #pragma vertex blur_vert
             #pragma fragment blur_frag
-   
-            
+
             ENDCG
         
         }
@@ -148,12 +188,20 @@ Shader "Wind/Bloom"
 
             #pragma vertex bloom_vert
             #pragma fragment bloom_frag
-   
-            
+
             ENDCG
 
+        }
 
-        
+        Pass{
+            Name "GaussianBlur"
+                        
+            CGPROGRAM
+
+            #pragma vertex gaussianblur_vert
+            #pragma fragment gaussianblur_frag
+
+            ENDCG
         
         }
 

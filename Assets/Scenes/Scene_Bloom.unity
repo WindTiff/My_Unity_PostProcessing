@@ -20,7 +20,7 @@ RenderSettings:
   m_FogDensity: 0.01
   m_LinearFogStart: 0
   m_LinearFogEnd: 300
-  m_AmbientSkyColor: {r: 0.212, g: 0.227, b: 0.259, a: 1}
+  m_AmbientSkyColor: {r: 0, g: 0, b: 0, a: 1}
   m_AmbientEquatorColor: {r: 0.114, g: 0.125, b: 0.133, a: 1}
   m_AmbientGroundColor: {r: 0.047, g: 0.043, b: 0.035, a: 1}
   m_AmbientIntensity: 1
@@ -207,12 +207,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5b03f7fb3ffbcbe44a0a89122638c18a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Intensity: 10
-  Threshold: 0.54
+  possShader: {fileID: 4800000, guid: 9af7d82beb5287c47b44953d7b322f0e, type: 3}
+  Intensity: 1.37
+  Threshold: 0.48
   ColorFilter: {r: 0, g: 0, b: 0, a: 0}
   DownSample: 3
   IterationTimes: 3
-  possShader: {fileID: 4800000, guid: 9af7d82beb5287c47b44953d7b322f0e, type: 3}
+  GaussianBlur: 1
+  BlurRadius: 2
 --- !u!1 &900435379
 GameObject:
   m_ObjectHideFlags: 0
