@@ -23,7 +23,7 @@ public class VignetteControl : PostEffectsBase
 
     private Material possMat;
 
-
+       
 
     public Material material
     {
