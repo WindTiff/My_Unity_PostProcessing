@@ -24,7 +24,3 @@
 ——全景扫描效果实现：基于深度图的后处理全景扫描效果，可以设定最大扫描距离、扫描线扩张速度、扫描线颜色、扫描线粗细。
 
 
-
-
-效果：
-![image](https://github.com/WindTiff/UsingImages/blob/master/images/BloomEffect.png)
